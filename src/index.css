@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* VOLTRIDE Design System — Premium Electric Mobility
+   All colors MUST be HSL. */
+
+@layer base {
+  :root {
+    /* Core palette — dark by default for premium EV feel */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Vibrant Orange #FF6B00 */
+    --primary: 25 100% 50%;
+    --primary-foreground: 0 0% 4%;
+    --primary-glow: 22 100% 60%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 11%;
+    --muted-foreground: 0 0% 60%;
+
+    /* Electric Blue accent */
+    --accent: 205 100% 55%;
+    --accent-foreground: 0 0% 4%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 14%;
+    --ring: 25 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* Surfaces */
+    --surface: 0 0% 6%;
+    --surface-elevated: 0 0% 9%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(25 100% 50%), hsl(15 100% 55%));
+    --gradient-hero: radial-gradient(ellipse at 50% 40%, hsl(25 100% 50% / 0.25), transparent 60%),
+                     radial-gradient(ellipse at 80% 80%, hsl(205 100% 55% / 0.18), transparent 55%),
+                     linear-gradient(180deg, hsl(0 0% 4%) 0%, hsl(0 0% 2%) 100%);
+    --gradient-card: linear-gradient(160deg, hsl(0 0% 9%) 0%, hsl(0 0% 5%) 100%);
+    --gradient-orange-blue: linear-gradient(90deg, hsl(25 100% 50%), hsl(205 100% 55%));
+
+    /* Shadows / glows */
+    --shadow-glow: 0 0 60px hsl(25 100% 50% / 0.35);
+    --shadow-glow-blue: 0 0 60px hsl(205 100% 55% / 0.3);
+    --shadow-card: 0 20px 50px -20px hsl(0 0% 0% / 0.7);
+    --shadow-elevated: 0 30px 80px -20px hsl(0 0% 0% / 0.8), 0 0 0 1px hsl(0 0% 100% / 0.04);
+
+    /* Motion */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-base: all 0.3s var(--ease-out-expo);
+
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 25 100% 50%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 14%;
+    --sidebar-ring: 25 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "cv11";
+    background-image:
+      radial-gradient(ellipse at top, hsl(25 100% 50% / 0.06), transparent 50%);
+  }
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+  ::selection {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+}
+
+@layer components {
+  .container-px {
+    @apply px-4 sm:px-6 lg:px-10;
+  }
+  .text-gradient {
+    background: var(--gradient-orange-blue);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .glow-ring {
+    box-shadow: var(--shadow-glow);
+  }
+  .hairline {
+    background: linear-gradient(90deg, transparent, hsl(var(--border)), transparent);
+    height: 1px;
+  }
+  .card-surface {
+    background: var(--gradient-card);
+    border: 1px solid hsl(var(--border));
+  }
+  .hover-lift {
+    transition: var(--transition-base);
+  }
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-elevated);
+    border-color: hsl(var(--primary) / 0.4);
+  }
+}
