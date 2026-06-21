@@ -15,7 +15,13 @@ interface CartCtx {
   toggleWishlist: (id: string) => void;
 }
 
-const Ctx = createContext<CartCtx | null>(null);
+const noop = () => {};
+const fallback: CartCtx = {
+  items: [], add: noop, remove: noop, setQty: noop, clear: noop,
+  count: 0, subtotal: 0, wishlist: [], toggleWishlist: noop,
+};
+
+const Ctx = createContext<CartCtx>(fallback);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>(() => {
@@ -48,8 +54,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
 
-export const useCart = () => {
-  const c = useContext(Ctx);
-  if (!c) throw new Error("useCart must be used within CartProvider");
-  return c;
-};
+// Safe hook — returns a no-op cart when no provider is mounted,
+// so every route renders even outside <CartProvider>.
+export const useCart = () => useContext(Ctx);

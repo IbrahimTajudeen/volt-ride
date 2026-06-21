@@ -1,11 +1,15 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Battery, Truck, ShieldCheck, Lock, Zap, Star, CheckCircle2, Clock } from "lucide-react";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { ProductCard } from "@/components/ProductCard";
+import { HeroMedia } from "@/components/HeroMedia";
+import { BrandsMarquee } from "@/components/BrandsMarquee";
 import { categories, products } from "@/data/products";
 import heroImg from "@/assets/hero-ev.jpg";
+
+const HERO_VIDEO = "https://assets.mixkit.co/videos/4475/4475-720.mp4";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -103,29 +107,15 @@ const Index = () => {
               </div>
             </motion.div>
           </div>
-          <motion.div
-            variants={scaleIn}
-            className="relative"
-          >
-            <motion.div
-              className="absolute -inset-10 bg-primary/20 blur-3xl rounded-full"
-              animate={{ opacity: [0.6, 1, 0.6] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <img
-              src={heroImg}
-              alt="Premium electric scooter and bike"
-              width={1920}
-              height={1200}
-              className="relative w-full h-auto rounded-2xl shadow-elevated"
-            />
+          <motion.div variants={scaleIn} className="relative">
+            <HeroMedia poster={heroImg} videoSrc={HERO_VIDEO} alt="Premium electric scooter and bike" />
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.6, ease }}
-              className="absolute -bottom-4 -left-4 card-surface rounded-xl px-4 py-3 flex items-center gap-3 shadow-elevated hidden sm:flex"
+              className="absolute -bottom-4 -left-4 card-surface rounded-xl px-4 py-3 items-center gap-3 shadow-card hidden sm:flex"
             >
-              <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Battery className="h-5 w-5 text-primary" />
               </div>
               <div>
@@ -137,9 +127,9 @@ const Index = () => {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9, duration: 0.6, ease }}
-              className="absolute -top-4 -right-4 card-surface rounded-xl px-4 py-3 flex items-center gap-3 shadow-elevated hidden sm:flex"
+              className="absolute -top-4 -right-4 card-surface rounded-xl px-4 py-3 items-center gap-3 shadow-card hidden sm:flex"
             >
-              <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
                 <Clock className="h-5 w-5 text-accent" />
               </div>
               <div>
@@ -150,6 +140,9 @@ const Index = () => {
           </motion.div>
         </motion.div>
       </section>
+
+      <BrandsMarquee />
+
 
       {/* BENEFITS */}
       <section className="border-y border-border/60 bg-surface/40">

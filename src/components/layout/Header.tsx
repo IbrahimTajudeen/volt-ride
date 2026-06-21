@@ -1,65 +1,100 @@
 import { Link, NavLink } from "react-router-dom";
-import { ShoppingCart, Search, User, Menu, Zap } from "lucide-react";
+import { ShoppingCart, Search, User, Menu, Sun, Moon, X } from "lucide-react";
 import { useCart } from "@/store/cart";
+import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Image } from "@radix-ui/react-avatar";
 
-const nav = [
+const navLeft = [
   { to: "/shop", label: "Shop" },
   { to: "/categories", label: "Categories" },
   { to: "/blog", label: "Blog" },
+];
+const navRight = [
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
+  { to: "/faqs", label: "FAQs" },
 ];
 
 export const Header = () => {
   const { count } = useCart();
+  const { theme, toggle } = useTheme();
   const [open, setOpen] = useState(false);
 
-  return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/70 border-b border-border/60">
-      <div className="container-px mx-auto max-w-7xl flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="relative">
-            <div className="absolute inset-0 bg-primary blur-md opacity-50 group-hover:opacity-80 transition-opacity" />
-            <img
-              src="volt-ride-logo.png"
-              alt="Volt Ride logo"
-              loading="lazy"
-              width={800}
-              height={800}
-              className="relative h-10 w-10 text-primary bg-transparent"
-            />
-          </div>
-          <span className="font-display text-xl font-bold tracking-tight">
-            VOLTRIDE
-          </span>
-        </Link>
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    `px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+      isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+    }`;
 
-        <nav className="hidden lg:flex items-center gap-1">
-          {nav.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              className={({ isActive }) =>
-                `px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`
-              }
-            >
+  return (
+    <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/60">
+      <div className="container-px mx-auto max-w-7xl grid grid-cols-[1fr_auto_1fr] items-center h-16 gap-4">
+        {/* Left nav */}
+        <nav className="hidden lg:flex items-center gap-1 justify-start">
+          {navLeft.map((n) => (
+            <NavLink key={n.to} to={n.to} className={linkClass}>
               {n.label}
             </NavLink>
           ))}
         </nav>
 
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" aria-label="Search">
+        {/* Mobile: menu button (left) */}
+        <div className="lg:hidden flex justify-start">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setOpen(!open)}
+            aria-label="Menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
+
+        {/* Centered brand */}
+        <Link to="/" className="flex items-center justify-center gap-2 group">
+          <img
+            src="volt-ride-logo.png"
+            alt="Volt Ride logo"
+            loading="lazy"
+            width={800}
+            height={800}
+            className="relative h-20 w-20 bg-transparent"
+          />
+          <span className="font-display text-xl sm:text-2xl font-bold tracking-[0.18em] uppercase">
+            Volt<span className="text-primary">ride</span>
+          </span>
+        </Link>
+
+        {/* Right nav + actions */}
+        <div className="flex items-center gap-1 justify-end">
+          <nav className="hidden xl:flex items-center gap-1 mr-2">
+            {navRight.map((n) => (
+              <NavLink key={n.to} to={n.to} className={linkClass}>
+                {n.label}
+              </NavLink>
+            ))}
+          </nav>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Search"
+            className="hidden sm:inline-flex"
+          >
             <Search className="h-5 w-5" />
           </Button>
-          <Link to="/account">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Toggle theme"
+            onClick={toggle}
+          >
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </Button>
+          <Link to="/account" className="hidden sm:inline-flex">
             <Button variant="ghost" size="icon" aria-label="Account">
               <User className="h-5 w-5" />
             </Button>
@@ -74,21 +109,13 @@ export const Header = () => {
               </span>
             )}
           </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={() => setOpen(!open)}
-            aria-label="Menu"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
         </div>
       </div>
+
       {open && (
         <nav className="lg:hidden border-t border-border/60 bg-background animate-fade-in">
           <div className="container-px mx-auto max-w-7xl py-3 flex flex-col">
-            {nav.map((n) => (
+            {[...navLeft, ...navRight].map((n) => (
               <NavLink
                 key={n.to}
                 to={n.to}
@@ -98,6 +125,13 @@ export const Header = () => {
                 {n.label}
               </NavLink>
             ))}
+            <Link
+              to="/account"
+              onClick={() => setOpen(false)}
+              className="py-3 text-sm font-medium"
+            >
+              Account
+            </Link>
           </div>
         </nav>
       )}
