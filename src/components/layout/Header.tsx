@@ -53,7 +53,7 @@ export const Header = () => {
         {/* Centered brand */}
         <Link to="/" className="flex items-center justify-center gap-2 group">
           <img
-            src="volt-ride-logo.png"
+            src="/volt-ride-logo.png"
             alt="Volt Ride logo"
             loading="lazy"
             width={800}

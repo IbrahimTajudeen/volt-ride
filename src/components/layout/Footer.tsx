@@ -7,7 +7,7 @@ export const Footer = () => (
       <div className="lg:col-span-2">
         <div className="flex items-center gap-2 mb-4">
           <img
-              src="volt-ride-logo.png"
+              src="/volt-ride-logo.png"
               alt="Volt Ride logo"
               loading="lazy"
               width={800}
