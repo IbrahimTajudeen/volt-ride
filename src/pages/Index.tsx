@@ -6,6 +6,8 @@ import { Layout } from "@/components/layout/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { HeroMedia } from "@/components/HeroMedia";
 import { BrandsMarquee } from "@/components/BrandsMarquee";
+import { CountUp } from "@/components/CountUp";
+
 import { categories, products } from "@/data/products";
 import heroImg from "@/assets/hero-ev.jpg";
 
@@ -103,7 +105,7 @@ const Index = () => {
                   {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-primary text-primary" />)}
                 </div>
                 <span className="font-semibold">4.9</span>
-                <span className="text-muted-foreground">/ 12,400+ reviews</span>
+                <span className="text-muted-foreground">/ <CountUp end={12400} suffix="+" /> reviews</span>
               </div>
             </motion.div>
           </div>
@@ -228,13 +230,20 @@ const Index = () => {
               <Link to="/shop"><Button variant="hero" size="lg" className="mt-6">Shop the Sale <ArrowRight /></Button></Link>
             </div>
             <div className="grid grid-cols-3 gap-4 text-center">
-              {[{n:"120K+",l:"Happy riders"},{n:"3 yr",l:"Warranty"},{n:"24/7",l:"Support"}].map((s,i)=>(
+              {[
+                { end: 120, suffix: "K+", l: "Happy riders" },
+                { end: 3, suffix: " yr", l: "Warranty" },
+                { end: 24, suffix: "/7", l: "Support" },
+              ].map((s, i) => (
                 <div key={i} className="card-surface rounded-xl p-4">
-                  <div className="font-display text-2xl lg:text-3xl font-bold text-gradient">{s.n}</div>
+                  <div className="font-display text-2xl lg:text-3xl font-bold text-gradient">
+                    <CountUp end={s.end} suffix={s.suffix} />
+                  </div>
                   <div className="text-xs text-muted-foreground mt-1">{s.l}</div>
                 </div>
               ))}
             </div>
+
           </div>
         </div>
       </section>
@@ -253,7 +262,9 @@ const Index = () => {
       </section>
 
       {/* WHY CHOOSE US */}
-      <section className="container-px mx-auto max-w-7xl py-20">
+      <section className="section-dark">
+        <div className="container-px mx-auto max-w-7xl py-20">
+
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary font-semibold mb-3">Why Voltride</p>
@@ -281,13 +292,15 @@ const Index = () => {
             ))}
           </div>
         </div>
+        </div>
       </section>
+
 
       {/* REVIEWS */}
       <section className="container-px mx-auto max-w-7xl py-20">
         <div className="text-center mb-12">
           <p className="text-xs uppercase tracking-widest text-primary font-semibold mb-2">Loved by riders</p>
-          <h2 className="font-display text-4xl lg:text-5xl font-bold">12,400+ five-star reviews</h2>
+          <h2 className="font-display text-4xl lg:text-5xl font-bold"><CountUp end={12400} suffix="+" /> five-star reviews</h2>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {reviews.map((r, i) => (
@@ -311,24 +324,27 @@ const Index = () => {
       </section>
 
       {/* NEWSLETTER */}
-      <section className="container-px mx-auto max-w-7xl py-20">
-        <div className="card-surface rounded-3xl p-10 lg:p-16 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-hero opacity-40" />
-          <div className="relative max-w-2xl mx-auto">
-            <h2 className="font-display text-3xl lg:text-4xl font-bold">Get $50 off your first ride</h2>
-            <p className="mt-3 text-muted-foreground">Join 80,000+ riders. Be first to hear about new drops, restocks, and rider-only deals.</p>
-            <form className="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="you@email.com"
-                required
-                className="flex-1 h-12 px-4 rounded-md bg-background border border-border focus:border-primary focus:outline-none"
-              />
-              <Button variant="hero" size="lg" type="submit">Subscribe</Button>
-            </form>
+      <section className="">
+        <div className="container-px mx-auto max-w-7xl py-20">
+          <div className="card-surface rounded-3xl p-10 lg:p-16 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-hero opacity-40" />
+            <div className="relative max-w-2xl mx-auto">
+              <h2 className="font-display text-3xl lg:text-4xl font-bold">Get $50 off your first ride</h2>
+              <p className="mt-3 text-muted-foreground">Join 80,000+ riders. Be first to hear about new drops, restocks, and rider-only deals.</p>
+              <form className="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input
+                  type="email"
+                  placeholder="you@email.com"
+                  required
+                  className="flex-1 h-12 px-4 rounded-md bg-background border border-border focus:border-primary focus:outline-none"
+                />
+                <Button variant="hero" size="lg" type="submit">Subscribe</Button>
+              </form>
+            </div>
           </div>
         </div>
       </section>
+
     </Layout>
   );
 };

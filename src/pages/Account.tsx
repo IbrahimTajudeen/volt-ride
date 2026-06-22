@@ -1,10 +1,13 @@
+import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Package, Heart, MapPin, CreditCard, User } from "lucide-react";
-import { useState } from "react";
+import { Package, Heart, MapPin, CreditCard, User, LogOut, Loader2 } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { products } from "@/data/products";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const tabs = [
   { id: "orders", label: "Orders", icon: Package },
@@ -14,16 +17,48 @@ const tabs = [
   { id: "profile", label: "Profile", icon: User },
 ];
 
+interface Order { id: string; order_number: string; status: string; total: number; created_at: string }
+
 const Account = () => {
   const [tab, setTab] = useState("orders");
   const { wishlist } = useCart();
+  const { user, signOut } = useAuth();
   const wishItems = products.filter(p => wishlist.includes(p.id));
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [profile, setProfile] = useState({ full_name: "", phone: "" });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([
+      supabase.from("orders").select("id, order_number, status, total, created_at").eq("user_id", user.id).order("created_at", { ascending: false }),
+      supabase.from("profiles").select("full_name, phone").eq("id", user.id).maybeSingle(),
+    ]).then(([o, p]) => {
+      setOrders((o.data as Order[]) || []);
+      if (p.data) setProfile({ full_name: p.data.full_name || "", phone: p.data.phone || "" });
+      setLoading(false);
+    });
+  }, [user]);
+
+  const saveProfile = async () => {
+    if (!user) return;
+    setSaving(true);
+    const { error } = await supabase.from("profiles").upsert({ id: user.id, ...profile, updated_at: new Date().toISOString() });
+    setSaving(false);
+    if (error) toast.error(error.message); else toast.success("Profile updated.");
+  };
 
   return (
     <Layout>
       <section className="container-px mx-auto max-w-7xl py-12">
-        <h1 className="font-display text-4xl font-bold">My Account</h1>
-        <p className="text-muted-foreground mt-2">Welcome back, Rider.</p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="font-display text-4xl font-bold">My Account</h1>
+            <p className="text-muted-foreground mt-2">Welcome back, {profile.full_name || user?.email?.split("@")[0]}.</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={signOut}><LogOut className="h-4 w-4" />Sign out</Button>
+        </div>
 
         <div className="mt-10 grid lg:grid-cols-[240px_1fr] gap-8">
           <aside className="card-surface rounded-2xl p-3 h-fit">
@@ -37,18 +72,17 @@ const Account = () => {
 
           <div>
             {tab === "orders" && (
+              loading ? <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div> :
+              orders.length === 0 ? <div className="card-surface rounded-2xl p-12 text-center text-muted-foreground">No orders yet. <Link to="/shop" className="text-primary hover:underline">Start shopping</Link></div> :
               <div className="space-y-4">
-                {[
-                  { id: "VR-10238", date: "Jun 14, 2026", status: "Delivered", total: 1899 },
-                  { id: "VR-10211", date: "May 28, 2026", status: "Shipped", total: 399 },
-                ].map(o => (
+                {orders.map(o => (
                   <div key={o.id} className="card-surface rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
                     <div>
-                      <div className="font-display font-bold">{o.id}</div>
-                      <div className="text-xs text-muted-foreground">{o.date}</div>
+                      <div className="font-display font-bold">{o.order_number}</div>
+                      <div className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</div>
                     </div>
-                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${o.status==="Delivered" ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"}`}>{o.status}</span>
-                    <div className="font-display font-bold">${o.total.toLocaleString()}</div>
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-full capitalize ${o.status==="delivered" ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"}`}>{o.status}</span>
+                    <div className="font-display font-bold">${Number(o.total).toLocaleString()}</div>
                     <Button variant="outline" size="sm">Track order</Button>
                   </div>
                 ))}
@@ -71,14 +105,14 @@ const Account = () => {
                 </div>
               )
             )}
-            {tab === "addresses" && <div className="card-surface rounded-2xl p-12 text-center text-muted-foreground">No saved addresses. <Button variant="link" className="text-primary">Add one</Button></div>}
-            {tab === "payment" && <div className="card-surface rounded-2xl p-12 text-center text-muted-foreground">No saved cards.</div>}
+            {tab === "addresses" && <div className="card-surface rounded-2xl p-12 text-center text-muted-foreground">No saved addresses yet.</div>}
+            {tab === "payment" && <div className="card-surface rounded-2xl p-12 text-center text-muted-foreground">No saved payment methods.</div>}
             {tab === "profile" && (
               <div className="card-surface rounded-2xl p-6 space-y-4 max-w-lg">
-                <input placeholder="Full name" defaultValue="Alex Rider" className="w-full h-11 px-3 rounded-md bg-background border border-border focus:border-primary outline-none" />
-                <input placeholder="Email" defaultValue="alex@voltride.com" className="w-full h-11 px-3 rounded-md bg-background border border-border focus:border-primary outline-none" />
-                <input placeholder="Phone" className="w-full h-11 px-3 rounded-md bg-background border border-border focus:border-primary outline-none" />
-                <Button variant="hero">Save changes</Button>
+                <input placeholder="Full name" value={profile.full_name} onChange={e=>setProfile({...profile, full_name: e.target.value})} className="w-full h-11 px-3 rounded-md bg-background border border-border focus:border-primary outline-none" />
+                <input placeholder="Email" defaultValue={user?.email || ""} disabled className="w-full h-11 px-3 rounded-md bg-secondary border border-border outline-none text-muted-foreground" />
+                <input placeholder="Phone" value={profile.phone} onChange={e=>setProfile({...profile, phone: e.target.value})} className="w-full h-11 px-3 rounded-md bg-background border border-border focus:border-primary outline-none" />
+                <Button variant="hero" onClick={saveProfile} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save changes"}</Button>
               </div>
             )}
           </div>

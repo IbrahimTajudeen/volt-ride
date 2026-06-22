@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { products, categories, Category } from "@/data/products";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Shop = () => {
   const { category } = useParams<{ category?: string }>();
@@ -28,18 +29,38 @@ const Shop = () => {
         <p className="text-muted-foreground mt-2">{filtered.length} products</p>
       </section>
 
-      <section className="container-px mx-auto max-w-7xl pb-20 grid lg:grid-cols-[240px_1fr] gap-10">
-        <aside className="space-y-6">
+      {/* Mobile filter bar */}
+      <section className="container-px mx-auto max-w-7xl pb-4 lg:hidden grid grid-cols-2 gap-3">
+        <Select value={active} onValueChange={(v) => setActive(v as Category | "all")}>
+          <SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={sort} onValueChange={setSort}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="featured">Featured</SelectItem>
+            <SelectItem value="price-asc">Price: Low to High</SelectItem>
+            <SelectItem value="price-desc">Price: High to Low</SelectItem>
+            <SelectItem value="rating">Top Rated</SelectItem>
+          </SelectContent>
+        </Select>
+      </section>
+
+      <section className="container-px mx-auto max-w-7xl pb-20 lg:grid lg:grid-cols-[240px_1fr] gap-10">
+        <aside className="hidden lg:block space-y-6">
           <div>
             <h3 className="font-display font-semibold mb-3 text-sm uppercase tracking-wider text-muted-foreground">Category</h3>
-            <div className="flex lg:flex-col gap-2 overflow-x-auto">
+            <div className="flex flex-col gap-2">
               <button onClick={() => setActive("all")}
-                className={`text-left text-sm px-3 py-2 rounded-md whitespace-nowrap transition-colors ${active==="all" ? "bg-primary text-primary-foreground" : "hover:bg-secondary"}`}>
+                className={`text-left text-sm px-3 py-2 rounded-md transition-colors ${active==="all" ? "bg-primary text-primary-foreground" : "hover:bg-secondary"}`}>
                 All Products
               </button>
               {categories.map(c => (
                 <button key={c.id} onClick={() => setActive(c.id)}
-                  className={`text-left text-sm px-3 py-2 rounded-md whitespace-nowrap transition-colors ${active===c.id ? "bg-primary text-primary-foreground" : "hover:bg-secondary"}`}>
+                  className={`text-left text-sm px-3 py-2 rounded-md transition-colors ${active===c.id ? "bg-primary text-primary-foreground" : "hover:bg-secondary"}`}>
                   {c.name}
                 </button>
               ))}
@@ -48,14 +69,16 @@ const Shop = () => {
         </aside>
 
         <div>
-          <div className="flex justify-end mb-6">
-            <select value={sort} onChange={(e) => setSort(e.target.value)}
-              className="h-10 px-3 rounded-md bg-secondary border border-border text-sm">
-              <option value="featured">Featured</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="rating">Top Rated</option>
-            </select>
+          <div className="hidden lg:flex justify-end mb-6">
+            <Select value={sort} onValueChange={setSort}>
+              <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="featured">Featured</SelectItem>
+                <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                <SelectItem value="rating">Top Rated</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filtered.map(p => <ProductCard key={p.id} product={p} />)}

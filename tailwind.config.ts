@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
-
 export default {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
@@ -95,7 +94,6 @@ export default {
         "pulse-glow": {
           "0%, 100%": { boxShadow: "0 0 30px hsl(25 100% 50% / 0.4)" },
           "50%": { boxShadow: "0 0 60px hsl(25 100% 50% / 0.7)" },
-          
         },
         marquee: {
           "0%": { transform: "translateX(0)" },
@@ -110,7 +108,7 @@ export default {
         "scale-in": "scale-in 0.5s var(--ease-out-expo) both",
         "slide-up": "slide-up 0.7s var(--ease-out-expo) both",
         "pulse-glow": "pulse-glow 2.5s ease-in-out infinite",
-        marquee: "marquee 25s linear infinite",
+        marquee: "marquee 30s linear infinite",
       },
     },
   },

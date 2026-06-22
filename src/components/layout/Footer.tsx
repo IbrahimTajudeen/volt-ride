@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { Instagram, Twitter, Youtube, Facebook, Mail, Phone, MapPin } from "lucide-react";
+import { Zap, Instagram, Twitter, Youtube, Facebook, Mail, Phone, MapPin } from "lucide-react";
 
 export const Footer = () => (
-  <footer className="border-t border-border/60 bg-surface/40 mt-24">
+  <footer className="section-dark border-t border-border/60 mt-24">
     <div className="container-px mx-auto max-w-7xl py-16 grid gap-12 md:grid-cols-2 lg:grid-cols-5">
       <div className="lg:col-span-2">
         <div className="flex items-center gap-2 mb-4">
@@ -12,9 +12,9 @@ export const Footer = () => (
               loading="lazy"
               width={800}
               height={800}
-              className="relative h-6 w-6 text-primary bg-transparent"
+              className="relative h-10 w-10 text-primary bg-transparent"
             />
-          <span className="font-display text-xl font-bold">VOLTRIDE</span>
+          <span className="font-display text-xl font-bold">VOLT<span className="text-primary">RIDE</span></span>
         </div>
         <p className="text-sm text-muted-foreground max-w-sm mb-6">
           Premium electric mobility, engineered for the city and beyond. Ride further, charge faster, live electric.
