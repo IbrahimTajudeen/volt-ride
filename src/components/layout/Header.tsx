@@ -56,7 +56,7 @@ export const Header = () => {
             loading="lazy"
             width={800}
             height={800}
-            className="relative h-20 w-20 bg-transparent"
+            className="relative h-20 w-20 bg-transparent lg:inline sm:hidden"
           />
           <span className="font-display text-xl sm:text-2xl font-bold tracking-[0.18em] uppercase">
             Volt<span className="text-primary">ride</span>
