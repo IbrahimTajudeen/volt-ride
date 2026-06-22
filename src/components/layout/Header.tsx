@@ -49,17 +49,6 @@ export const Header = () => {
           ))}
         </nav>
 
-        <div className="lg:hidden flex justify-start">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setOpen(!open)}
-            aria-label="Menu"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
-
         <Link to="/" className="flex items-center justify-center gap-2 group">
           <img
             src="/volt-ride-logo.png"
@@ -164,6 +153,16 @@ export const Header = () => {
               </span>
             )}
           </Link>
+        </div>
+        <div className="lg:hidden flex justify-start">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setOpen(!open)}
+            aria-label="Menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
       </div>
 
