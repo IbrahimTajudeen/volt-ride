@@ -220,16 +220,21 @@ export type Database = {
           compare_at: number | null
           created_at: string
           description: string | null
+          description_long: string | null
           id: string
           image_url: string | null
+          images: string[]
           name: string
           price: number
           rating: number | null
           reviews: number | null
+          sku: string | null
           slug: string
+          specs: Json
           stock: number
           tagline: string | null
           updated_at: string
+          variants: Json
         }
         Insert: {
           active?: boolean
@@ -238,16 +243,21 @@ export type Database = {
           compare_at?: number | null
           created_at?: string
           description?: string | null
+          description_long?: string | null
           id?: string
           image_url?: string | null
+          images?: string[]
           name: string
           price: number
           rating?: number | null
           reviews?: number | null
+          sku?: string | null
           slug: string
+          specs?: Json
           stock?: number
           tagline?: string | null
           updated_at?: string
+          variants?: Json
         }
         Update: {
           active?: boolean
@@ -256,16 +266,21 @@ export type Database = {
           compare_at?: number | null
           created_at?: string
           description?: string | null
+          description_long?: string | null
           id?: string
           image_url?: string | null
+          images?: string[]
           name?: string
           price?: number
           rating?: number | null
           reviews?: number | null
+          sku?: string | null
           slug?: string
+          specs?: Json
           stock?: number
           tagline?: string | null
           updated_at?: string
+          variants?: Json
         }
         Relationships: []
       }

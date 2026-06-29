@@ -1,15 +1,22 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { ProductCard } from "@/components/ProductCard";
-import { products, categories, Category } from "@/data/products";
+import { categories, Category, Product } from "@/data/products";
+import { fetchProducts } from "@/lib/productsApi";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 
 const Shop = () => {
   const { category } = useParams<{ category?: string }>();
   const [active, setActive] = useState<Category | "all">((category as Category) || "all");
   const [sort, setSort] = useState("featured");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { fetchProducts().then((p) => { setProducts(p); setLoading(false); }); }, []);
+  useEffect(() => { if (category) setActive(category as Category); }, [category]);
 
   const filtered = useMemo(() => {
     let list = active === "all" ? products : products.filter(p => p.category === active);
@@ -17,7 +24,8 @@ const Shop = () => {
     if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
     if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
     return list;
-  }, [active, sort]);
+  }, [active, sort, products]);
+
 
   const title = active === "all" ? "All Products" : categories.find(c => c.id === active)?.name || "Shop";
 
@@ -80,9 +88,13 @@ const Shop = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filtered.map(p => <ProductCard key={p.id} product={p} />)}
-          </div>
+          {loading ? (
+            <div className="flex justify-center py-24"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filtered.map(p => <ProductCard key={p.id} product={p} />)}
+            </div>
+          )}
           {filtered.length === 0 && (
             <div className="text-center py-20">
               <p className="text-muted-foreground">No products found.</p>

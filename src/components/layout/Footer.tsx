@@ -51,6 +51,9 @@ export const Footer = () => {
             <li><Link to="/blog" className="hover:text-primary">{t("nav.blog")}</Link></li>
             <li><Link to="/faqs" className="hover:text-primary">{t("nav.faqs")}</Link></li>
             <li><Link to="/contact" className="hover:text-primary">{t("nav.contact")}</Link></li>
+            <li><Link to="/support" className="hover:text-primary">Support</Link></li>
+            <li><Link to="/shipping" className="hover:text-primary">Shipping</Link></li>
+            <li><Link to="/returns" className="hover:text-primary">Returns</Link></li>
             <li><Link to="/track-order" className="hover:text-primary">{t("track.title")}</Link></li>
           </ul>
         </div>

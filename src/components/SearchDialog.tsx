@@ -2,7 +2,8 @@ import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Search } from "lucide-react";
-import { products } from "@/data/products";
+import type { Product } from "@/data/products";
+import { fetchProducts } from "@/lib/productsApi";
 import { useI18n } from "@/i18n/I18nProvider";
 
 interface Props { open: boolean; onOpenChange: (o: boolean) => void }
@@ -10,8 +11,9 @@ interface Props { open: boolean; onOpenChange: (o: boolean) => void }
 export const SearchDialog = ({ open, onOpenChange }: Props) => {
   const { t } = useI18n();
   const [q, setQ] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
 
-  useEffect(() => { if (!open) setQ(""); }, [open]);
+  useEffect(() => { if (!open) setQ(""); else if (products.length === 0) fetchProducts().then(setProducts); }, [open]);
 
   const results = useMemo(() => {
     if (!q.trim()) return products.slice(0, 6);
@@ -21,7 +23,8 @@ export const SearchDialog = ({ open, onOpenChange }: Props) => {
       p.tagline.toLowerCase().includes(s) ||
       p.category.includes(s)
     ).slice(0, 8);
-  }, [q]);
+  }, [q, products]);
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

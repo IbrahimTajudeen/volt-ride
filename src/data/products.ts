@@ -13,6 +13,16 @@ export type Category =
   | "accessories"
   | "parts";
 
+export interface ProductVariant {
+  id: string;
+  name: string;
+  color?: string;
+  image?: string;
+  images?: string[];
+  price_modifier?: number;
+  stock?: number;
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -24,6 +34,8 @@ export interface Product {
   rating: number;
   reviews: number;
   image: string;
+  images?: string[];
+  variants?: ProductVariant[];
   badge?: "New" | "Best Seller" | "Limited";
   stock: number;
   range?: string;

@@ -55,19 +55,20 @@ export const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/60">
-        <div className="container-px mx-auto max-w-7xl grid grid-cols-[1fr_auto_1fr] items-center h-16 gap-4">
-          <nav className="hidden lg:flex items-center gap-1 justify-start">
-            {navLeft.map(n => <NavLink key={n.to} to={n.to} className={linkClass}>{n.label}</NavLink>)}
-          </nav>
+    <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/60">
 
-          <div className="lg:hidden flex justify-start">
-            <Button variant="ghost" size="icon" onClick={() => setOpen(!open)} aria-label={t("nav.menu")}>
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-          </div>
+      <div className="container-px mx-auto max-w-7xl grid grid-cols-[1fr_auto_1fr] items-center h-16 gap-4">
+        <nav className="hidden lg:flex items-center gap-1 justify-start">
+          {navLeft.map(n => <NavLink key={n.to} to={n.to} className={linkClass}>{n.label}</NavLink>)}
+        </nav>
 
-          <Link to="/" className="flex items-center justify-center gap-2 group">
+        <div className="lg:hidden flex justify-start">
+          <Button variant="ghost" size="icon" onClick={() => setOpen(!open)} aria-label={t("nav.menu")}>
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
+
+        <Link to="/" className="flex items-center justify-center gap-2 group">
             {/* Logo image: hidden on mobile, visible on lg+ */}
             <img
               src="/volt-ride-logo.png"
@@ -78,122 +79,123 @@ export const Header = () => {
               className="hidden lg:inline relative h-20 w-20 bg-transparent"
             />
             {/* Title: smaller on mobile so it fits the header without overflow */}
-            <span className="font-display text-base sm:text-lg lg:text-2xl font-bold tracking-[0.12em] sm:tracking-[0.18em] uppercase leading-none">
+            <span className="font-display sm:text-2xl text-xl font-bold tracking-[0.12em] sm:tracking-[0.18em] uppercase leading-none">
               Volt<span className="text-primary">ride</span>
             </span>
           </Link>
 
-          <div className="flex items-center gap-1 justify-end">
-            <nav className="hidden xl:flex items-center gap-1 mr-2">
-              {navRight.map(n => <NavLink key={n.to} to={n.to} className={linkClass}>{n.label}</NavLink>)}
-            </nav>
-            <Button variant="ghost" size="icon" aria-label={t("nav.search")} onClick={() => setSearchOpen(true)} className="hidden sm:inline-flex">
-              <Search className="h-5 w-5" />
-            </Button>
-
-            {/* Language switcher: hidden on mobile (replaced by floating button below) */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label={t("nav.language")} className="hidden lg:inline-flex">
-                  <Globe className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-36">
-                <DropdownMenuItem onClick={() => setLang("en")}>
-                  <span className={lang === "en" ? "font-semibold text-primary" : ""}>English</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setLang("he")}>
-                  <span className={lang === "he" ? "font-semibold text-primary" : ""}>עברית</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button variant="ghost" size="icon" aria-label={t("nav.toggleTheme")} onClick={toggle}>
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
-            {user && (
-              <Link to="/notifications" className="relative">
-                <Button variant="ghost" size="icon" aria-label={t("nav.notifications")}>
-                  <Bell className="h-5 w-5" />
-                </Button>
-                {unread > 0 && (
-                  <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 min-w-4 px-1 flex items-center justify-center">{unread}</span>
-                )}
-              </Link>
-            )}
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" aria-label={t("nav.account")}><User className="h-5 w-5" /></Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-52">
-                  <div className="px-2 py-1.5 text-xs text-muted-foreground truncate">{user.email}</div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => nav("/account")}><User className="h-4 w-4 mr-2" />{t("nav.account")}</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => nav("/notifications")}><Bell className="h-4 w-4 mr-2" />{t("nav.notifications")}</DropdownMenuItem>
-                  {isAdmin && <DropdownMenuItem onClick={() => nav("/admin")}><LayoutDashboard className="h-4 w-4 mr-2" />{t("nav.admin")}</DropdownMenuItem>}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut}><LogOut className="h-4 w-4 mr-2" />{t("nav.signOut")}</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link to="/auth" className="hidden sm:inline-flex">
-                <Button variant="ghost" size="sm">{t("nav.signIn")}</Button>
-              </Link>
-            )}
-            <Link to="/cart" className="relative">
-              <Button variant="ghost" size="icon" aria-label={t("nav.cart")}><ShoppingCart className="h-5 w-5" /></Button>
-              {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 min-w-4 px-1 flex items-center justify-center">{count}</span>
+        <div className="flex items-center gap-0.5 sm:gap-1 justify-end">
+          <nav className="hidden xl:flex items-center gap-1 mr-2">
+            {navRight.map(n => <NavLink key={n.to} to={n.to} className={linkClass}>{n.label}</NavLink>)}
+          </nav>
+          <Button variant="ghost" size="icon" aria-label={t("nav.search")} onClick={() => setSearchOpen(true)}>
+            <Search className="h-5 w-5" />
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label={t("nav.language")} className="hidden sm:inline-flex">
+                <Globe className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-36">
+              <DropdownMenuItem onClick={() => setLang("en")}>
+                <span className={lang === "en" ? "font-semibold text-primary" : ""}>English</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLang("he")}>
+                <span className={lang === "he" ? "font-semibold text-primary" : ""}>עברית</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button variant="ghost" size="icon" aria-label={t("nav.toggleTheme")} onClick={toggle} className="hidden sm:inline-flex">
+            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
+          {user && (
+            <Link to="/notifications" className="relative">
+              <Button variant="ghost" size="icon" aria-label={t("nav.notifications")}>
+                <Bell className="h-5 w-5" />
+              </Button>
+              {unread > 0 && (
+                <span className="absolute top-1 right-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 min-w-4 px-1 flex items-center justify-center">{unread}</span>
               )}
             </Link>
-          </div>
+          )}
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label={t("nav.account")}><User className="h-5 w-5" /></Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <div className="px-2 py-1.5 text-xs text-muted-foreground truncate">{user.email}</div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => nav("/account")}><User className="h-4 w-4 mr-2" />{t("nav.account")}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => nav("/notifications")}><Bell className="h-4 w-4 mr-2" />{t("nav.notifications")}</DropdownMenuItem>
+                {isAdmin && <DropdownMenuItem onClick={() => nav("/admin")}><LayoutDashboard className="h-4 w-4 mr-2" />{t("nav.admin")}</DropdownMenuItem>}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut}><LogOut className="h-4 w-4 mr-2" />{t("nav.signOut")}</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link to="/auth" className="hidden sm:inline-flex">
+              <Button variant="ghost" size="sm">{t("nav.signIn")}</Button>
+            </Link>
+          )}
+          <Link to="/cart" className="relative">
+            <Button variant="ghost" size="icon" aria-label={t("nav.cart")}><ShoppingCart className="h-5 w-5" /></Button>
+            {count > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full h-4 min-w-4 px-1 flex items-center justify-center">{count}</span>
+            )}
+          </Link>
         </div>
-
-        {open && (
-          <nav className="lg:hidden border-t border-border/60 bg-background animate-fade-in">
-            <div className="container-px mx-auto max-w-7xl py-3 flex flex-col">
-              {[...navLeft, ...navRight].map(n => (
-                <NavLink key={n.to} to={n.to} onClick={() => setOpen(false)}
-                  className="py-3 text-sm font-medium border-b border-border/40 last:border-0">
-                  {n.label}
-                </NavLink>
-              ))}
-              <button onClick={() => { setOpen(false); setSearchOpen(true); }} className="py-3 text-sm font-medium text-start border-b border-border/40">
-                {t("nav.search")}
-              </button>
-              {!user && (
-                <Link to="/auth" onClick={() => setOpen(false)} className="py-3 text-sm font-semibold text-primary">{t("nav.signIn")}</Link>
-              )}
-            </div>
-          </nav>
-        )}
-
-        <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
-      </header>
-
-      {/* Floating language switcher — mobile only */}
-      <div className="lg:hidden fixed bottom-6 right-6 z-50">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              size="icon"
-              className="h-12 w-12 rounded-full shadow-lg shadow-black/20 border border-border/60 bg-background/90 backdrop-blur-md hover:bg-accent"
-              aria-label={t("nav.language")}
-            >
-              <Globe className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="top" className="w-36 mb-2">
-            <DropdownMenuItem onClick={() => setLang("en")}>
-              <span className={lang === "en" ? "font-semibold text-primary" : ""}>English</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setLang("he")}>
-              <span className={lang === "he" ? "font-semibold text-primary" : ""}>עברית</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
+
+      {open && (
+        <nav className="lg:hidden border-t border-border/60 bg-background animate-fade-in">
+          <div className="container-px mx-auto max-w-7xl py-3 flex flex-col">
+            {[...navLeft, ...navRight].map(n => (
+              <NavLink key={n.to} to={n.to} onClick={() => setOpen(false)}
+                className="py-3 text-sm font-medium border-b border-border/40 last:border-0">
+                {n.label}
+              </NavLink>
+            ))}
+            <button onClick={() => { setOpen(false); setSearchOpen(true); }} className="py-3 text-sm font-medium text-start border-b border-border/40">
+              {t("nav.search")}
+            </button>
+            {!user && (
+              <Link to="/auth" onClick={() => setOpen(false)} className="py-3 text-sm font-semibold text-primary">{t("nav.signIn")}</Link>
+            )}
+          </div>
+        </nav>
+      )}
+
+      <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+    </header>
+
+    {/* Mobile floating language switcher */}
+    <div className="sm:hidden fixed bottom-5 right-5 z-40">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            aria-label={t("nav.language")}
+            className="h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-95 transition-transform"
+          >
+            <Globe className="h-5 w-5" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent side="top" align="end" className="w-40 mb-2">
+          <DropdownMenuItem onClick={() => setLang("en")}>
+            <span className={lang === "en" ? "font-semibold text-primary" : ""}>English</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setLang("he")}>
+            <span className={lang === "he" ? "font-semibold text-primary" : ""}>עברית</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={toggle}>
+            {theme === "dark" ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
+            {t("nav.toggleTheme")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
     </>
   );
 };

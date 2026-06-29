@@ -27,6 +27,9 @@ import Addresses from "./pages/Addresses.tsx";
 import TrackOrder from "./pages/TrackOrder.tsx";
 import Terms from "./pages/Terms.tsx";
 import Privacy from "./pages/Privacy.tsx";
+import Shipping from "./pages/Shipping.tsx";
+import Returns from "./pages/Returns.tsx";
+import Support from "./pages/Support.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -57,11 +60,14 @@ const App = () => (
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/shipping" element={<Shipping />} />
+                  <Route path="/returns" element={<Returns />} />
+                  <Route path="/support" element={<Support />} />
                   <Route path="/track-order" element={<TrackOrder />} />
                   <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
                   <Route path="/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
                   <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-                  <Route path="/admin" element={<ProtectedRoute> {/* requireAdmin> */} <Admin /></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute requireAdmin><Admin /></ProtectedRoute>} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </CartProvider>

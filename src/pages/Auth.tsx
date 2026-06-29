@@ -53,7 +53,7 @@ const Auth = () => {
 
   const handleOAuth = async (provider: "google" | "apple") => {
     setLoading(true);
-    const result = { error: "Failed to sign in using OAuth" } // await auth.signInWithOAuth(provider, { redirect_uri: window.location.origin });
+    const result = await auth.signInWithOAuth(provider, { redirect_uri: window.location.origin });
     if (result.error) {
       toast.error("Sign-in failed");
       setLoading(false);

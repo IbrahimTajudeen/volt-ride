@@ -8,10 +8,13 @@ import { HeroMedia } from "@/components/HeroMedia";
 import { BrandsMarquee } from "@/components/BrandsMarquee";
 import { CountUp } from "@/components/CountUp";
 
-import { categories, products } from "@/data/products";
+import { categories } from "@/data/products";
+import { fetchProducts } from "@/lib/productsApi";
+import type { Product } from "@/data/products";
+import { useEffect, useState } from "react";
 import heroImg from "@/assets/hero-ev.jpg";
 
-const HERO_VIDEO = 'https://www.pexels.com/download/video/17466750/'; //"https://assets.mixkit.co/videos/4475/4475-720.mp4";
+const HERO_VIDEO = 'https://www.pexels.com/download/video/17466750/'; //const HERO_VIDEO = "https://assets.mixkit.co/videos/4475/4475-720.mp4";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -47,13 +50,15 @@ const reviews = [
 ];
 
 const Index = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  useEffect(() => { fetchProducts().then(setProducts); }, []);
   const bestSellers = products.filter(p => p.badge === "Best Seller").slice(0, 4);
   const newArrivals = products.filter(p => p.badge === "New").slice(0, 4);
 
   return (
     <Layout>
       {/* HERO */}
-      <section className="relative overflow-hidden">
+      <section className="section-dark relative overflow-hidden">
         <motion.div
           className="absolute inset-0 bg-gradient-hero"
           initial={{ opacity: 0 }}
@@ -324,7 +329,7 @@ const Index = () => {
       </section>
 
       {/* NEWSLETTER */}
-      <section className="">
+      <section className="section-dark">
         <div className="container-px mx-auto max-w-7xl py-20">
           <div className="card-surface rounded-3xl p-10 lg:p-16 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-hero opacity-40" />

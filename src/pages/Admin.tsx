@@ -12,8 +12,12 @@ import {
 
 interface DbProduct {
   id: string; slug: string; name: string; tagline: string | null; description: string | null;
+  description_long?: string | null;
   category: string; price: number; compare_at: number | null; stock: number;
   rating: number | null; reviews: number | null; image_url: string | null; badge: string | null; active: boolean;
+  images?: string[] | null;
+  variants?: any[] | null;
+  specs?: any[] | null;
 }
 interface Order { id: string; order_number: string; status: string; total: number; created_at: string; user_id: string | null }
 interface Msg { id: string; name: string; email: string; subject: string | null; message: string; created_at: string }
@@ -21,6 +25,7 @@ interface Msg { id: string; name: string; email: string; subject: string | null;
 const emptyProduct = {
   slug: "", name: "", tagline: "", description: "", category: "bikes",
   price: 0, compare_at: null as number | null, stock: 0, image_url: "", badge: "", active: true,
+  images_text: "", variants_text: "", specs_text: "",
 };
 
 const Admin = () => {
@@ -99,27 +104,45 @@ const Admin = () => {
       slug: p.slug, name: p.name, tagline: p.tagline || "", description: p.description || "",
       category: p.category, price: Number(p.price), compare_at: p.compare_at ? Number(p.compare_at) : null,
       stock: p.stock, image_url: p.image_url || "", badge: p.badge || "", active: p.active,
+      images_text: (p.images || []).join("\n"),
+      variants_text: p.variants && p.variants.length ? JSON.stringify(p.variants, null, 2) : "",
+      specs_text: p.specs && p.specs.length ? JSON.stringify(p.specs, null, 2) : "",
     });
     setOpen(true);
   };
 
+  const safeJson = (s: string, fallback: any) => {
+    if (!s.trim()) return fallback;
+    try { return JSON.parse(s); } catch { throw new Error("Invalid JSON: " + s.slice(0, 40)); }
+  };
+
   const save = async () => {
     setSaving(true);
-    const payload = {
-      ...form,
-      compare_at: form.compare_at || null,
-      badge: form.badge || null,
-      updated_at: new Date().toISOString(),
-    };
-    const { error } = editing
-      ? await supabase.from("products").update(payload).eq("id", editing.id)
-      : await supabase.from("products").insert(payload);
-    setSaving(false);
-    if (error) return toast.error(error.message);
-    toast.success(editing ? "Product updated" : "Product added");
-    setOpen(false);
-    load();
+    try {
+      const { images_text, variants_text, specs_text, ...rest } = form;
+      const payload = {
+        ...rest,
+        compare_at: rest.compare_at || null,
+        badge: rest.badge || null,
+        images: images_text.split("\n").map(s => s.trim()).filter(Boolean),
+        variants: safeJson(variants_text, []),
+        specs: safeJson(specs_text, []),
+        updated_at: new Date().toISOString(),
+      };
+      const { error } = editing
+        ? await supabase.from("products").update(payload).eq("id", editing.id)
+        : await supabase.from("products").insert(payload);
+      if (error) throw error;
+      toast.success(editing ? "Product updated" : "Product added");
+      setOpen(false);
+      load();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save");
+    } finally {
+      setSaving(false);
+    }
   };
+
 
   const remove = async (id: string) => {
     if (!confirm("Delete this product?")) return;
@@ -429,10 +452,28 @@ const Admin = () => {
             <input type="number" step="0.01" placeholder="Price" value={form.price} onChange={e=>setForm({...form, price: parseFloat(e.target.value) || 0})} className="h-10 px-3 rounded-md bg-background border border-border" />
             <input type="number" step="0.01" placeholder="Compare-at (optional)" value={form.compare_at || ""} onChange={e=>setForm({...form, compare_at: parseFloat(e.target.value) || null})} className="h-10 px-3 rounded-md bg-background border border-border" />
             <input type="number" placeholder="Stock" value={form.stock} onChange={e=>setForm({...form, stock: parseInt(e.target.value) || 0})} className="h-10 px-3 rounded-md bg-background border border-border" />
-            <input placeholder="Image URL" value={form.image_url} onChange={e=>setForm({...form, image_url: e.target.value})} className="h-10 px-3 rounded-md bg-background border border-border" />
+            <input placeholder="Primary Image URL" value={form.image_url} onChange={e=>setForm({...form, image_url: e.target.value})} className="h-10 px-3 rounded-md bg-background border border-border" />
             <label className="col-span-2 flex items-center gap-2 text-sm">
               <input type="checkbox" checked={form.active} onChange={e=>setForm({...form, active: e.target.checked})} /> Visible in storefront
             </label>
+            <div className="col-span-2 space-y-1">
+              <label className="text-xs text-muted-foreground">Gallery image URLs (one per line)</label>
+              <textarea rows={3} value={form.images_text} onChange={e=>setForm({...form, images_text: e.target.value})}
+                placeholder="https://...&#10;https://..."
+                className="w-full p-3 rounded-md bg-background border border-border resize-none font-mono text-xs" />
+            </div>
+            <div className="col-span-2 space-y-1">
+              <label className="text-xs text-muted-foreground">Variants JSON — [{`{id,name,color,image,images,price_modifier,stock}`}]</label>
+              <textarea rows={5} value={form.variants_text} onChange={e=>setForm({...form, variants_text: e.target.value})}
+                placeholder='[{"id":"black","name":"Matte Black","color":"#111","image":"https://...","stock":10}]'
+                className="w-full p-3 rounded-md bg-background border border-border resize-none font-mono text-xs" />
+            </div>
+            <div className="col-span-2 space-y-1">
+              <label className="text-xs text-muted-foreground">Specs JSON — [{`{label,value}`}]</label>
+              <textarea rows={4} value={form.specs_text} onChange={e=>setForm({...form, specs_text: e.target.value})}
+                placeholder='[{"label":"Range","value":"120 km"}]'
+                className="w-full p-3 rounded-md bg-background border border-border resize-none font-mono text-xs" />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
