@@ -11,7 +11,7 @@ import { CountUp } from "@/components/CountUp";
 import { categories, products } from "@/data/products";
 import heroImg from "@/assets/hero-ev.jpg";
 
-const HERO_VIDEO = "https://assets.mixkit.co/videos/4475/4475-720.mp4";
+const HERO_VIDEO = 'https://www.pexels.com/download/video/17466750/'; //"https://assets.mixkit.co/videos/4475/4475-720.mp4";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 

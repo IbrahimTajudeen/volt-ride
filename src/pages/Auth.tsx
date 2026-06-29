@@ -18,7 +18,15 @@ const Auth = () => {
   const nav = useNavigate();
   const { user } = useAuth();
 
-  useEffect(() => { if (user) nav("/account"); }, [user, nav]);
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("user_roles").select("role")
+        .eq("user_id", user.id).eq("role", "admin").maybeSingle();
+      nav(data ? "/admin" : "/account", { replace: true });
+    })();
+  }, [user, nav]);
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +53,6 @@ const Auth = () => {
 
   const handleOAuth = async (provider: "google" | "apple") => {
     setLoading(true);
-    alert("coming soon")
     const result = { error: "Failed to sign in using OAuth" } // await auth.signInWithOAuth(provider, { redirect_uri: window.location.origin });
     if (result.error) {
       toast.error("Sign-in failed");

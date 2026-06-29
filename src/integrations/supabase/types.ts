@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          city: string
+          country: string
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string
+          line1: string
+          line2: string | null
+          phone: string | null
+          postal_code: string
+          recipient: string
+          region: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          line1: string
+          line2?: string | null
+          phone?: string | null
+          postal_code: string
+          recipient: string
+          region?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          line1?: string
+          line2?: string | null
+          phone?: string | null
+          postal_code?: string
+          recipient?: string
+          region?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -128,6 +179,7 @@ export type Database = {
           subtotal: number
           tax: number
           total: number
+          tracking_number: string | null
           user_id: string | null
         }
         Insert: {
@@ -141,6 +193,7 @@ export type Database = {
           subtotal: number
           tax?: number
           total: number
+          tracking_number?: string | null
           user_id?: string | null
         }
         Update: {
@@ -154,6 +207,7 @@ export type Database = {
           subtotal?: number
           tax?: number
           total?: number
+          tracking_number?: string | null
           user_id?: string | null
         }
         Relationships: []

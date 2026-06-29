@@ -1,16 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { LayoutDashboard, Package, ShoppingBag, Users, BarChart3, AlertTriangle, DollarSign, TrendingUp, Zap, ArrowUpRight, Plus, Pencil, Trash2, X, Loader2, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Users, BarChart3, AlertTriangle, DollarSign, TrendingUp, Zap, ArrowUpRight, Plus, Pencil, Trash2, Loader2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-const sales = [
-  { d: "Mon", v: 4200 }, { d: "Tue", v: 5100 }, { d: "Wed", v: 4800 }, { d: "Thu", v: 6300 },
-  { d: "Fri", v: 8200 }, { d: "Sat", v: 9400 }, { d: "Sun", v: 7100 },
-];
-const max = Math.max(...sales.map(s => s.v));
+import {
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
+  BarChart, Bar, PieChart, Pie, Cell, Legend, LineChart, Line,
+} from "recharts";
 
 interface DbProduct {
   id: string; slug: string; name: string; tagline: string | null; description: string | null;
@@ -52,6 +50,47 @@ const Admin = () => {
 
   const lowStock = products.filter(p => p.stock < 15);
   const revenue = orders.reduce((s, o) => s + Number(o.total), 0);
+
+  // Derived analytics
+  const salesTrend = useMemo(() => {
+    const days = 14;
+    const buckets: { d: string; revenue: number; orders: number }[] = [];
+    const today = new Date();
+    for (let i = days - 1; i >= 0; i--) {
+      const dt = new Date(today); dt.setDate(today.getDate() - i);
+      const key = dt.toISOString().slice(0, 10);
+      const label = dt.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      const dayOrders = orders.filter(o => o.created_at.slice(0, 10) === key);
+      buckets.push({
+        d: label,
+        revenue: dayOrders.reduce((s, o) => s + Number(o.total), 0),
+        orders: dayOrders.length,
+      });
+    }
+    return buckets;
+  }, [orders]);
+
+  const statusMix = useMemo(() => {
+    const m: Record<string, number> = {};
+    orders.forEach(o => { m[o.status] = (m[o.status] || 0) + 1; });
+    return Object.entries(m).map(([name, value]) => ({ name, value }));
+  }, [orders]);
+
+  const categoryMix = useMemo(() => {
+    const m: Record<string, number> = {};
+    products.forEach(p => { m[p.category] = (m[p.category] || 0) + 1; });
+    return Object.entries(m).map(([name, value]) => ({ name, value }));
+  }, [products]);
+
+  const topProducts = useMemo(() =>
+    [...products]
+      .sort((a, b) => (Number(b.price) * (b.reviews || 0)) - (Number(a.price) * (a.reviews || 0)))
+      .slice(0, 6)
+      .map(p => ({ name: p.name.length > 14 ? p.name.slice(0, 14) + "…" : p.name, revenue: Number(p.price) * (p.reviews || 1) })),
+    [products]);
+
+  const PIE_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "hsl(var(--muted-foreground))", "hsl(var(--destructive))", "hsl(var(--ring))", "hsl(var(--secondary-foreground))"];
+
 
   const startNew = () => { setEditing(null); setForm(emptyProduct); setOpen(true); };
   const startEdit = (p: DbProduct) => {
@@ -160,20 +199,64 @@ const Admin = () => {
 
             <div className="grid lg:grid-cols-3 gap-6">
               <div className="card-surface rounded-2xl p-6 lg:col-span-2">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-display font-bold">Revenue this week</h3>
-                    <p className="text-xs text-muted-foreground">Daily sales overview</p>
+                    <h3 className="font-display font-bold">Revenue trend</h3>
+                    <p className="text-xs text-muted-foreground">Last 14 days</p>
                   </div>
+                  <span className="text-xs font-semibold text-primary flex items-center gap-0.5"><ArrowUpRight className="h-3 w-3" />Live</span>
                 </div>
-                <div className="flex items-end gap-3 h-48">
-                  {sales.map(s => (
-                    <div key={s.d} className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full bg-gradient-to-t from-primary to-primary-glow rounded-t-md transition-all hover:opacity-80" style={{ height: `${(s.v / max) * 100}%` }} />
-                      <span className="text-xs text-muted-foreground">{s.d}</span>
-                    </div>
-                  ))}
-                </div>
+                <ResponsiveContainer width="100%" height={260}>
+                  <AreaChart data={salesTrend}>
+                    <defs>
+                      <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <XAxis dataKey="d" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                    <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#rev)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="card-surface rounded-2xl p-6">
+                <h3 className="font-display font-bold mb-1">Order status</h3>
+                <p className="text-xs text-muted-foreground mb-2">Pipeline breakdown</p>
+                {statusMix.length === 0 ? (
+                  <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">No orders yet</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <PieChart>
+                      <Pie data={statusMix} dataKey="value" nameKey="name" innerRadius={45} outerRadius={75} paddingAngle={3}>
+                        {statusMix.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                      </Pie>
+                      <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+
+              <div className="card-surface rounded-2xl p-6 lg:col-span-2">
+                <h3 className="font-display font-bold mb-1">Top products by traction</h3>
+                <p className="text-xs text-muted-foreground mb-4">Estimated revenue weight</p>
+                {topProducts.length === 0 ? (
+                  <div className="h-[240px] flex items-center justify-center text-sm text-muted-foreground">No products yet</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={240}>
+                    <BarChart data={topProducts} layout="vertical" margin={{ left: 10 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                      <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                      <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} width={110} />
+                      <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                      <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 6, 6, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
               </div>
 
               <div className="card-surface rounded-2xl p-6">
@@ -181,7 +264,7 @@ const Admin = () => {
                 <p className="text-xs text-muted-foreground mb-4">Restock soon</p>
                 <div className="space-y-3">
                   {lowStock.length === 0 && <p className="text-sm text-muted-foreground">All products stocked.</p>}
-                  {lowStock.slice(0, 5).map(p => (
+                  {lowStock.slice(0, 6).map(p => (
                     <div key={p.id} className="flex items-center gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium truncate">{p.name}</div>
@@ -195,6 +278,7 @@ const Admin = () => {
             </div>
           </>
         )}
+
 
         {!loading && section === "products" && (
           <div className="card-surface rounded-2xl p-6 overflow-x-auto">
@@ -272,7 +356,59 @@ const Admin = () => {
         )}
 
         {!loading && section === "customers" && <div className="card-surface rounded-2xl p-12 text-center text-muted-foreground">Customer directory coming soon.</div>}
-        {!loading && section === "analytics" && <div className="card-surface rounded-2xl p-12 text-center text-muted-foreground">Advanced analytics dashboard.</div>}
+        {!loading && section === "analytics" && (
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div className="card-surface rounded-2xl p-6">
+              <h3 className="font-display font-bold mb-1">Orders volume</h3>
+              <p className="text-xs text-muted-foreground mb-4">Daily order count, last 14 days</p>
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={salesTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                  <XAxis dataKey="d" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                  <Line type="monotone" dataKey="orders" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="card-surface rounded-2xl p-6">
+              <h3 className="font-display font-bold mb-1">Catalog by category</h3>
+              <p className="text-xs text-muted-foreground mb-4">Inventory distribution</p>
+              {categoryMix.length === 0 ? (
+                <div className="h-[260px] flex items-center justify-center text-sm text-muted-foreground">No products yet</div>
+              ) : (
+                <ResponsiveContainer width="100%" height={260}>
+                  <PieChart>
+                    <Pie data={categoryMix} dataKey="value" nameKey="name" outerRadius={90} label={{ fontSize: 11 }}>
+                      {categoryMix.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                    </Pie>
+                    <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+
+            <div className="card-surface rounded-2xl p-6 lg:col-span-2">
+              <h3 className="font-display font-bold mb-1">Stock levels</h3>
+              <p className="text-xs text-muted-foreground mb-4">Units on hand across the catalog</p>
+              {products.length === 0 ? (
+                <div className="h-[260px] flex items-center justify-center text-sm text-muted-foreground">No products yet</div>
+              ) : (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={products.map(p => ({ name: p.name.length > 12 ? p.name.slice(0,12)+"…" : p.name, stock: p.stock }))}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} interval={0} angle={-25} textAnchor="end" height={60} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
+                    <Bar dataKey="stock" fill="hsl(var(--primary))" radius={[6,6,0,0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </div>
+        )}
       </main>
 
       <Dialog open={open} onOpenChange={setOpen}>

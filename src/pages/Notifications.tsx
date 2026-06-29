@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { CustomerSitemap } from "@/components/CustomerSitemap";
 import { Bell, Check, Package, CreditCard, ShieldCheck, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDistanceToNow } from "date-fns";
+import { useI18n } from "@/i18n/I18nProvider";
 
 interface N { id: string; title: string; body: string | null; type: string; link: string | null; read: boolean; created_at: string }
 
@@ -13,6 +15,7 @@ const iconFor = (t: string) =>
 
 const Notifications = () => {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [items, setItems] = useState<N[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,21 +40,24 @@ const Notifications = () => {
 
   return (
     <Layout>
-      <section className="container-px mx-auto max-w-3xl py-12">
-        <div className="flex items-center justify-between mb-8">
+      <section className="container-px mx-auto max-w-7xl py-12">
+        <div className="grid lg:grid-cols-[260px_1fr] gap-8">
+          <CustomerSitemap className="h-fit" />
           <div>
-            <h1 className="font-display text-4xl font-bold">Notifications</h1>
-            <p className="text-muted-foreground mt-1">Order updates, deliveries, and account alerts.</p>
-          </div>
-          {items.some(n => !n.read) && <Button variant="outline" size="sm" onClick={markAll}><Check className="h-4 w-4" />Mark all read</Button>}
-        </div>
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h1 className="font-display text-4xl font-bold">{t("nav.notifications")}</h1>
+                <p className="text-muted-foreground mt-1">{t("notifications.subtitle")}</p>
+              </div>
+              {items.some(n => !n.read) && <Button variant="outline" size="sm" onClick={markAll}><Check className="h-4 w-4" />{t("notifications.markAll")}</Button>}
+            </div>
 
-        {loading ? (
+            {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
         ) : items.length === 0 ? (
           <div className="card-surface rounded-2xl p-12 text-center">
             <Bell className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">No notifications yet. We'll ping you when something happens.</p>
+            <p className="text-muted-foreground">{t("notifications.empty")}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -76,6 +82,8 @@ const Notifications = () => {
             })}
           </div>
         )}
+      </div>
+    </div>
       </section>
     </Layout>
   );
